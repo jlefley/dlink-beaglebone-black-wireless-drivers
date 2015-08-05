@@ -1,0 +1,53 @@
+diff -rupN rtl8811AU_linux_v4.3.0_10674.20140321/include/autoconf.h rtl8811AU_linux_v4.3.0_10674.20140321-bbb/include/autoconf.h
+--- rtl8811AU_linux_v4.3.0_10674.20140321/include/autoconf.h	2014-03-21 07:42:12.000000000 +0000
++++ rtl8811AU_linux_v4.3.0_10674.20140321-bbb/include/autoconf.h	2014-12-02 21:45:45.667144982 +0000
+@@ -378,14 +378,18 @@
+ /*
+  * Debug Related Config
+  */
+-#define DBG	1
++// Modify next line to disable debug logging - Jason Lefley
++#define DBG	0
+ 
+-#define CONFIG_DEBUG /* DBG_871X, etc... */
++// Comment next line to disable debug logging - Jason Lefley
++//#define CONFIG_DEBUG /* DBG_871X, etc... */
+ //#define CONFIG_DEBUG_RTL871X /* RT_TRACE, RT_PRINT_DATA, _func_enter_, _func_exit_ */
+ 
+ #define CONFIG_PROC_DEBUG
+ 
+-#define DBG_CONFIG_ERROR_DETECT
++// Comment next line to disable debug logging - Jason Lefley
++//#define DBG_CONFIG_ERROR_DETECT
++
+ //#define DBG_CONFIG_ERROR_DETECT_INT
+ //#define DBG_CONFIG_ERROR_RESET
+ 
+diff -rupN rtl8811AU_linux_v4.3.0_10674.20140321/Makefile rtl8811AU_linux_v4.3.0_10674.20140321-bbb/Makefile
+--- rtl8811AU_linux_v4.3.0_10674.20140321/Makefile	2014-03-21 07:42:13.000000000 +0000
++++ rtl8811AU_linux_v4.3.0_10674.20140321-bbb/Makefile	2014-12-02 20:03:07.484575849 +0000
+@@ -63,7 +63,8 @@ CONFIG_AP_WOWLAN = n
+ ######### Notify SDIO Host Keep Power During Syspend ##########
+ CONFIG_RTW_SDIO_PM_KEEP_POWER = y
+ ###################### Platform Related #######################
+-CONFIG_PLATFORM_I386_PC = y
++CONFIG_PLATFORM_I386_PC = n
++CONFIG_PLATFORM_BEAGLEBONE = y
+ CONFIG_PLATFORM_ANDROID_X86 = n
+ CONFIG_PLATFORM_JB_X86 = n
+ CONFIG_PLATFORM_ARM_S3C2K4 = n
+@@ -757,6 +758,14 @@ MODDESTDIR := /lib/modules/$(KVER)/kerne
+ INSTALL_PREFIX :=
+ endif
+ 
++ifeq ($(CONFIG_PLATFORM_BEAGLEBONE), y)
++EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
++CROSS_COMPILE ?=
++ARCH := arm
++KVER  := $(shell uname -r)
++KSRC := /lib/modules/$(KVER)/build
++endif
++
+ ifeq ($(CONFIG_PLATFORM_ACTIONS_ATM702X), y)
+ EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_ANDROID -DCONFIG_PLATFORM_ACTIONS_ATM702X
+ #ARCH := arm

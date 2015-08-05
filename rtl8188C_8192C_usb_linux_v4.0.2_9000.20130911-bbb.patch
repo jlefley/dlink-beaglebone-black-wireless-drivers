@@ -1,0 +1,55 @@
+diff -rupN rtl8188C_8192C_usb_linux_v4.0.2_9000.20130911/include/autoconf.h rtl8188C_8192C_usb_linux_v4.0.2_9000.20130911-bbb/include/autoconf.h
+--- rtl8188C_8192C_usb_linux_v4.0.2_9000.20130911/include/autoconf.h	2013-09-11 03:56:55.000000000 +0000
++++ rtl8188C_8192C_usb_linux_v4.0.2_9000.20130911-bbb/include/autoconf.h	2014-08-29 17:57:17.000000000 +0000
+@@ -296,9 +296,11 @@
+ //#define CONFIG_DEBUG_RTL871X
+ 
+ #define DBG	0
+-#define CONFIG_DEBUG_RTL819X
++// Comment next line to disable debug logging - Jason Lefley
++//#define CONFIG_DEBUG_RTL819X
+ 
+-#define CONFIG_PROC_DEBUG	1
++// Comment next line to disable debug logging - Jason Lefley
++//#define CONFIG_PROC_DEBUG	1
+ 
+ //#define DBG_IO
+ //#define DBG_DELAY_OS
+@@ -324,7 +326,8 @@
+ 
+ //#define DBG_MEMORY_LEAK	1
+ 
+-#define DBG_CONFIG_ERROR_DETECT
++// Comment next line to disable debug logging - Jason Lefley
++//#define DBG_CONFIG_ERROR_DETECT
+ //#define DBG_CONFIG_ERROR_RESET
+ 
+ //TX use 1 urb
+diff -rupN rtl8188C_8192C_usb_linux_v4.0.2_9000.20130911/Makefile rtl8188C_8192C_usb_linux_v4.0.2_9000.20130911-bbb/Makefile
+--- rtl8188C_8192C_usb_linux_v4.0.2_9000.20130911/Makefile	2013-09-11 03:56:55.000000000 +0000
++++ rtl8188C_8192C_usb_linux_v4.0.2_9000.20130911-bbb/Makefile	2014-08-29 17:34:19.000000000 +0000
+@@ -38,7 +38,8 @@ CONFIG_RTL8192CU_REDEFINE_1X1 = n
+ CONFIG_INTEL_WIDI = n
+ CONFIG_WAKE_ON_WLAN = n
+ 
+-CONFIG_PLATFORM_I386_PC = y
++CONFIG_PLATFORM_BEAGLEBONE = y
++CONFIG_PLATFORM_I386_PC = n
+ CONFIG_PLATFORM_TI_AM3517 = n
+ CONFIG_PLATFORM_ANDROID_X86 = n
+ CONFIG_PLATFORM_JB_X86 = n
+@@ -247,6 +248,14 @@ MODDESTDIR := /lib/modules/$(KVER)/kerne
+ INSTALL_PREFIX :=
+ endif
+ 
++ifeq ($(CONFIG_PLATFORM_BEAGLEBONE), y)
++EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
++CROSS_COMPILE ?=
++ARCH := arm
++KVER := $(shell uname -r)
++KSRC ?= /lib/modules/$(KVER)/build
++endif
++
+ ifeq ($(CONFIG_PLATFORM_TI_AM3517), y)
+ EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_ANDROID -DCONFIG_PLATFORM_SHUTTLE
+ CROSS_COMPILE := arm-eabi-
