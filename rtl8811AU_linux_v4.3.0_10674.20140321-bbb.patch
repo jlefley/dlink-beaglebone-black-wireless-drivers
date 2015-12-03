@@ -1,6 +1,19 @@
+diff -rupN rtl8811AU_linux_v4.3.0_10674.20140321/core/rtw_debug.c rtl8811AU_linux_v4.3.0_10674.20140321-bbb/core/rtw_debug.c
+--- rtl8811AU_linux_v4.3.0_10674.20140321/core/rtw_debug.c	2014-03-21 07:42:12.000000000 +0000
++++ rtl8811AU_linux_v4.3.0_10674.20140321-bbb/core/rtw_debug.c	2015-12-03 01:46:07.010000282 +0000
+@@ -63,7 +63,8 @@ u32 GlobalDebugLevel = _drv_err_;
+ void dump_drv_version(void *sel)
+ {
+ 	DBG_871X_SEL_NL(sel, "%s %s\n", DRV_NAME, DRIVERVERSION);
+-	DBG_871X_SEL_NL(sel, "build time: %s %s\n", __DATE__, __TIME__);
++	// Comment next line: Macros __TIME__ and __DATE__ might prevent reproducible builds - Jason Lefley
++	//DBG_871X_SEL_NL(sel, "build time: %s %s\n", __DATE__, __TIME__);
+ }
+ 
+ void dump_log_level(void *sel)
 diff -rupN rtl8811AU_linux_v4.3.0_10674.20140321/include/autoconf.h rtl8811AU_linux_v4.3.0_10674.20140321-bbb/include/autoconf.h
 --- rtl8811AU_linux_v4.3.0_10674.20140321/include/autoconf.h	2014-03-21 07:42:12.000000000 +0000
-+++ rtl8811AU_linux_v4.3.0_10674.20140321-bbb/include/autoconf.h	2014-12-02 21:45:45.667144982 +0000
++++ rtl8811AU_linux_v4.3.0_10674.20140321-bbb/include/autoconf.h	2015-12-03 01:40:38.370000243 +0000
 @@ -378,14 +378,18 @@
  /*
   * Debug Related Config
@@ -25,7 +38,7 @@ diff -rupN rtl8811AU_linux_v4.3.0_10674.20140321/include/autoconf.h rtl8811AU_li
  
 diff -rupN rtl8811AU_linux_v4.3.0_10674.20140321/Makefile rtl8811AU_linux_v4.3.0_10674.20140321-bbb/Makefile
 --- rtl8811AU_linux_v4.3.0_10674.20140321/Makefile	2014-03-21 07:42:13.000000000 +0000
-+++ rtl8811AU_linux_v4.3.0_10674.20140321-bbb/Makefile	2014-12-02 20:03:07.484575849 +0000
++++ rtl8811AU_linux_v4.3.0_10674.20140321-bbb/Makefile	2015-12-03 01:40:38.380000243 +0000
 @@ -63,7 +63,8 @@ CONFIG_AP_WOWLAN = n
  ######### Notify SDIO Host Keep Power During Syspend ##########
  CONFIG_RTW_SDIO_PM_KEEP_POWER = y
@@ -51,3 +64,30 @@ diff -rupN rtl8811AU_linux_v4.3.0_10674.20140321/Makefile rtl8811AU_linux_v4.3.0
  ifeq ($(CONFIG_PLATFORM_ACTIONS_ATM702X), y)
  EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN -DCONFIG_PLATFORM_ANDROID -DCONFIG_PLATFORM_ACTIONS_ATM702X
  #ARCH := arm
+diff -rupN rtl8811AU_linux_v4.3.0_10674.20140321/os_dep/linux/os_intfs.c rtl8811AU_linux_v4.3.0_10674.20140321-bbb/os_dep/linux/os_intfs.c
+--- rtl8811AU_linux_v4.3.0_10674.20140321/os_dep/linux/os_intfs.c	2014-03-21 07:42:12.000000000 +0000
++++ rtl8811AU_linux_v4.3.0_10674.20140321-bbb/os_dep/linux/os_intfs.c	2015-12-03 02:35:01.860395674 +0000
+@@ -648,7 +648,9 @@ u16 rtw_recv_select_queue(struct sk_buff
+ 
+ static int rtw_ndev_notifier_call(struct notifier_block * nb, unsigned long state, void *ndev)
+ {
+-	struct net_device *dev = ndev;
++	// Fix for kernel >= 3.11 - Jason Lefley
++	// See https://github.com/pld-linux/rtl8812au/blob/master/linux-3.11.patch
++	struct net_device *dev = netdev_notifier_info_to_dev(ndev);
+ 
+ #if (LINUX_VERSION_CODE>=KERNEL_VERSION(2,6,29))
+ 	if (dev->netdev_ops->ndo_do_ioctl != rtw_ioctl)
+diff -rupN rtl8811AU_linux_v4.3.0_10674.20140321/os_dep/linux/rtw_android.c rtl8811AU_linux_v4.3.0_10674.20140321-bbb/os_dep/linux/rtw_android.c
+--- rtl8811AU_linux_v4.3.0_10674.20140321/os_dep/linux/rtw_android.c	2014-03-21 07:42:12.000000000 +0000
++++ rtl8811AU_linux_v4.3.0_10674.20140321-bbb/os_dep/linux/rtw_android.c	2015-12-03 01:50:03.470000310 +0000
+@@ -337,7 +337,8 @@ int rtw_android_cmdstr_to_num(char *cmds
+ {
+ 	int cmd_num;
+ 	for(cmd_num=0 ; cmd_num<ANDROID_WIFI_CMD_MAX; cmd_num++)
+-		if(0 == strnicmp(cmdstr , android_wifi_cmd_str[cmd_num], strlen(android_wifi_cmd_str[cmd_num])) )
++		// Replace call to deprecated function - Jason Lefley
++		if(0 == strncasecmp(cmdstr , android_wifi_cmd_str[cmd_num], strlen(android_wifi_cmd_str[cmd_num])) )
+ 			break;
+ 
+ 	return cmd_num;
