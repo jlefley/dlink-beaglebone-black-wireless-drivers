@@ -5,18 +5,19 @@ Overview
 This document contains information for compiling wireless drivers and related
 software for use with BeagleBone Black compatible platforms
 
-Some drivers have associated patches (enable building on BBB platform, decrease
-log output, etc) See patch files for more details
+The drivers have associated patches to address the following issues:
+- Enable building on BBB platform
+- Eliminate excessive log output
+- Add compatibility for 4.1.x kernel
+
+See the patch files for more details.
 
 ===============================================================================
 Prerequisites
 ===============================================================================
 
 - Kernel headers
-  - Kernel version 3.8.13-bone63 package available at
-    https://rcn-ee.net/deb/wheezy-armhf/v3.8.13-bone63/linux-headers-3.8.13-bone63_1wheezy_armhf.deb
-  - Header version must match currently installed kernel version
-  - Install with "dpkg -i linux-headers-3.8.13-bone63_1wheezy_armhf.deb"
+  - Install with "apt-get install linux-headers-$(uname -r)"
 - build-essential package
   - Install with "apt-get install build-essential"
 - Copy the directory containing this file to the build host and change into it
@@ -26,26 +27,26 @@ Prerequisites
 RTL8192CU Wireless Driver for D-Link DWA-121
 ===============================================================================
 
-rtl8188C_8192C_usb_linux_v4.0.2_9000.20130911.tar.gz in this directory is the
-original driver package provided in the driver archive available here:
+rtl8188C_8192C_usb_linux_v4.0.2_9000.20130911.tar.gz contains the original
+driver package provided in the archive available here:
 http://www.realtek.com/downloads/downloadsView.aspx?Langid=1&PNid=21&PFid=48&Level=5&Conn=4&DownTypeID=3&GetDown=false&Downloads=true#2772
 
-Steps to patch and build driver
+Steps to patch and build driver:
   tar zxf rtl8188C_8192C_usb_linux_v4.0.2_9000.20130911.tar.gz
   cd rtl8188C_8192C_usb_linux_v4.0.2_9000.20130911
   patch -p1 < ../rtl8188C_8192C_usb_linux_v4.0.2_9000.20130911-bbb.patch
   make
 
 This will build a kernel module called 8192cu.ko
-The kernel module can be installed into
-/lib/modules/3.8.13-bone63/kernel/drivers/net/wireless
+The module can be installed into the kernel module directory structure via:
+  cp 8192cu.ko /lib/modules/$(uname -r)/kernel/drivers/net/wireless
 
 ===============================================================================
 hostapd Utility for D-Link DWA-121 and DWA-171
 ===============================================================================
 
-wpa_supplicant_hostapd-0.8_rtw_r7475.20130812.tar.gz in this directory is the
-original hostapd package provided in the driver archive available here:
+wpa_supplicant_hostapd-0.8_rtw_r7475.20130812.tar.gz contains the original
+hostapd package provided in the archive available here:
 http://www.realtek.com/downloads/downloadsView.aspx?Langid=1&PNid=21&PFid=48&Level=5&Conn=4&DownTypeID=3&GetDown=false&Downloads=true#2772
 
 No patching is required
@@ -63,8 +64,8 @@ DWA-121 and DWA-171
 RTL8811AU Wireless Driver for D-Link DWA-171
 ===============================================================================
 
-rtl8811AU_linux_v4.3.0_10674.20140321.tar.gz in this directory is the
-original driver package provided in the driver archive available here:
+rtl8811AU_linux_v4.3.0_10674.20140321.tar.gz contains the original
+driver package provided in the archive available here:
 ftp://ftp.dlink.eu/Products/dwa/dwa-171/driver_software/DWA-171_drv_revA_4-3-0_all_multi_20140616.zip
 
 Steps to patch and build driver
@@ -74,5 +75,5 @@ Steps to patch and build driver
   make
 
 This will build a kernel module called 8821au.ko
-The kernel module can be installed into
-/lib/modules/3.8.13-bone63/kernel/drivers/net/wireless
+The module can be installed into the kernel module directory structure via:
+  cp 8821au.ko /lib/modules/$(uname -r)/kernel/drivers/net/wireless
